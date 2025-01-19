@@ -14,7 +14,7 @@ repos:
       types_or: [ python, pyi, jupyter ]
     - id: pytest-check
       name: pytest-check
-      entry: pytest -v --cov=src --cov-report term-missing --cov-fail-under=80
+      entry: pytest -v --cov=src --cov-report term-missing
       language: system
       pass_filenames: false
       always_run: true

@@ -1,4 +1,5 @@
 import cProfile
+import inspect
 import pstats
 from functools import wraps
 from io import StringIO
@@ -10,6 +11,7 @@ def debug(func):
         res = func(*args, **kwargs)
         print({"func": func.__name__, "args": args, "kwargs": kwargs, "return": res})
         return res
+
     return wrapper
 
 
@@ -19,8 +21,9 @@ def print_test_case(func):
         params = dict(zip(list(inspect.signature(func).parameters.keys()), args))
         params.update(**kwargs)
         res = func(*args, **kwargs)
-        print(f"pytest.param({params}, {res}, id=''),\n")
+        print(f"pytest.param({params}, {res}, id=''),")
         return res
+
     return wrapper
 
 
@@ -39,5 +42,7 @@ def profile_func(sort_by="cumulative"):
             print(s.getvalue())
 
             return result
+
         return wrapper
+
     return decorator
