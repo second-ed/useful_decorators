@@ -1,0 +1,20 @@
+repos:
+- repo: local
+  hooks:
+    - id: ruff lint
+      name: ruff lint
+      entry: ruff check
+      language: system
+      types_or: [ python, pyi, jupyter ]
+      args: [ --fix ]
+    - id: ruff format
+      name: ruff format
+      entry: ruff format
+      language: system
+      types_or: [ python, pyi, jupyter ]
+    - id: pytest-check
+      name: pytest-check
+      entry: pytest -v --cov=src --cov-report term-missing --cov-fail-under=80
+      language: system
+      pass_filenames: false
+      always_run: true
