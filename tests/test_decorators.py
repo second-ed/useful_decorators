@@ -31,27 +31,25 @@ def test_debug(capsys, args, kwargs, expected_result):
 
 
 @pytest.mark.parametrize(
-    "args, kwargs, expected_result",
+    "kwargs, expected_result",
     [
         pytest.param(
-            (2, 3),
-            {},
+            {"a": 2, "b": 3},
             "pytest.param({'a': 2, 'b': 3}, 5, id=''),\n",
             id="Ensure prints test case with args",
         ),
         pytest.param(
-            (3,),
-            {"b": 4},
+            {"a": 3, "b": 4},
             "pytest.param({'a': 3, 'b': 4}, 7, id=''),\n",
             id="Ensure prints test case with args and kwargs",
         ),
     ],
 )
-def test_print_test_case(capsys, args, kwargs, expected_result):
+def test_print_test_case(capsys, kwargs, expected_result):
     @print_test_case
     def some_func(a, b):
         return a + b
 
-    some_func(*args, **kwargs)
+    some_func(**kwargs)
     captured = capsys.readouterr()
     assert captured.out == expected_result
