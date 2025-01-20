@@ -3,6 +3,55 @@ import inspect
 import pstats
 from functools import wraps
 from io import StringIO
+from typing import Callable, Tuple, Union
+
+
+class SingletonMeta(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class ExceptionLogger(metaclass=SingletonMeta):
+    log = []
+
+    @classmethod
+    def catch_raise(
+        cls,
+        custom_exception: Exception = Exception,
+        catch_exceptions: Union[Exception, Tuple[Exception]] = Exception,
+        msg: str = "",
+    ) -> Callable:
+        def decorator(func: Callable):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                try:
+                    res = func(*args, **kwargs)
+                    return res, None
+                except catch_exceptions as e:
+                    raise_exception = (
+                        custom_exception
+                        if custom_exception is not Exception
+                        else type(e)
+                    )
+                    exc = raise_exception(
+                        {
+                            "func": func.__name__,
+                            "args": args,
+                            "kwargs": kwargs,
+                            "caught_error": e,
+                            "msg": msg or str(e),
+                        }
+                    )
+                    cls.log.append(exc)
+                    return None, exc
+
+            return wrapper
+
+        return decorator
 
 
 def debug(func):
