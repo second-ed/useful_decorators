@@ -46,7 +46,7 @@ class ExceptionLogger(metaclass=SingletonMeta):
                             "func": func.__name__,
                             "args": args,
                             "kwargs": kwargs,
-                            "caught_error": repr(e),
+                            "caught_error": e,
                             "msg": msg or str(e),
                         }
                     )

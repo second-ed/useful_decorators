@@ -20,7 +20,9 @@ from src.useful_decorators.decorators import ExceptionLogger, debug, print_test_
                         "func": "div",
                         "args": (2, "0"),
                         "kwargs": {},
-                        "caught_error": "TypeError(\"unsupported operand type(s) for /: 'int' and 'str'\")",
+                        "caught_error": TypeError(
+                            "unsupported operand type(s) for /: 'int' and 'str'"
+                        ),
                         "msg": "no string args allowed",
                     }
                 ),
@@ -53,7 +55,7 @@ def test_catch_raise(
         assert res == exp_res
 
         if err and exp_err:
-            assert err.args[0] == exp_err.args[0]
+            assert str(err.args[0]) == str(exp_err.args[0])
 
 
 @pytest.mark.parametrize(
