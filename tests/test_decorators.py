@@ -1,6 +1,59 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 
-from src.useful_decorators.decorators import debug, print_test_case
+from src.useful_decorators.decorators import ExceptionLogger, debug, print_test_case
+
+
+@pytest.mark.parametrize(
+    "args, custom_exception, catch_exceptions, msg, expected_result, expected_context",
+    [
+        pytest.param(
+            (2, "0"),
+            ValueError,
+            Exception,
+            "no string args allowed",
+            (
+                None,
+                ValueError(
+                    {
+                        "func": "div",
+                        "args": (2, "0"),
+                        "kwargs": {},
+                        "caught_error": "TypeError(\"unsupported operand type(s) for /: 'int' and 'str'\")",
+                        "msg": "no string args allowed",
+                    }
+                ),
+            ),
+            does_not_raise(),
+            id="Ensure catches and transforms exception",
+        ),
+        pytest.param(
+            (2, 1),
+            ValueError,
+            ZeroDivisionError,
+            "no string args allowed",
+            (2, None),
+            does_not_raise(),
+            id="Ensure catches and transforms exception",
+        ),
+    ],
+)
+def test_catch_raise(
+    args, custom_exception, catch_exceptions, msg, expected_result, expected_context
+):
+    @ExceptionLogger.catch_raise(custom_exception, catch_exceptions, msg)
+    def div(a, b):
+        return a / b
+
+    with expected_context:
+        res, err = div(*args)
+        exp_res, exp_err = expected_result
+
+        assert res == exp_res
+
+        if err and exp_err:
+            assert err.args[0] == exp_err.args[0]
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import cProfile
 import inspect
 import pstats
+import threading
 from functools import wraps
 from io import StringIO
 from typing import Callable, Tuple, Union
@@ -16,6 +19,7 @@ class SingletonMeta(type):
 
 
 class ExceptionLogger(metaclass=SingletonMeta):
+    _log_lock = threading.Lock()
     log = []
 
     @classmethod
@@ -42,11 +46,12 @@ class ExceptionLogger(metaclass=SingletonMeta):
                             "func": func.__name__,
                             "args": args,
                             "kwargs": kwargs,
-                            "caught_error": e,
+                            "caught_error": repr(e),
                             "msg": msg or str(e),
                         }
                     )
-                    cls.log.append(exc)
+                    with cls._log_lock:
+                        cls.log.append(exc)
                     return None, exc
 
             return wrapper
