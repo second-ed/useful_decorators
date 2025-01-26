@@ -8,14 +8,7 @@ from functools import wraps
 from io import StringIO
 from typing import Callable, Tuple, Union
 
-
-class SingletonMeta(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
+from .metaclasses import SingletonMeta
 
 
 class ExceptionLogger(metaclass=SingletonMeta):
