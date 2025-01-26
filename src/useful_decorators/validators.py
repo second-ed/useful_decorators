@@ -33,11 +33,11 @@ def is_type(arg_type: type):
     return wrapper
 
 
-def eq(limit: int):
+def eq(value: int):
     @catch_type_error
     def wrapper(arg_name: str, arg_value: Any):
-        if not arg_value == limit:
-            return ValueError(f"`{arg_name}` must equal {limit}. Got: {arg_value}.")
+        if not arg_value == value:
+            return ValueError(f"`{arg_name}` must equal {value}. Got: {arg_value}.")
 
     return wrapper
 
