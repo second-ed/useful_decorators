@@ -33,10 +33,10 @@ class Pipe(metaclass=SingletonMeta):
                 }
 
                 if arg_validations:
+                    print(inspect.getfullargspec(func))
                     fails = _validate_args(
                         arg_validations,
-                        inspect.getfullargspec(func).args,
-                        [*args, *list(kwargs.values())],
+                        _create_arg_dict(inspect.getfullargspec(func), args, kwargs),
                     )
 
                     if fails:
@@ -102,10 +102,24 @@ def _validate_arg(arg_validations, arg_name, arg_value):
     return fails
 
 
-def _validate_args(arg_validations: dict, arg_spec, arg_values):
+def _validate_args(arg_validations: dict, args_dict: dict):
     fails = defaultdict(list)
-    for arg_name, arg_value in zip(arg_spec, arg_values):
+    for arg_name, arg_value in args_dict.items():
         arg_fails = _validate_arg(arg_validations, arg_name, arg_value)
         if arg_fails:
             fails[arg_name] = arg_fails
     return fails
+
+
+def _create_arg_dict(arg_spec: inspect.FullArgSpec, args, kwargs):
+    args = {i: arg for i, arg in enumerate(args)}
+    arg_names = arg_spec.args
+    defaults = arg_spec.defaults or ()
+
+    num_non_defaults = len(arg_names) - len(defaults)
+    default_values = dict(zip(arg_names[num_non_defaults:], defaults))
+    arg_dict = {
+        arg: args.get(i) or default_values.get(arg)
+        for i, arg in enumerate(arg_names[: max(num_non_defaults, len(args))])
+    }
+    return {**arg_dict, **kwargs}
