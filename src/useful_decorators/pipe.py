@@ -48,7 +48,10 @@ class Pipe(metaclass=SingletonMeta):
                         raise invalid_args
 
                 try:
-                    res = func(*args, **kwargs)
+                    # transform funcs return the transformed data for the next stage
+                    # validation funcs return the data passed in + any validation errs
+                    res, errs = func(*args, **kwargs)
+                    cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(errs)
                 except Exception as e:
                     cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(e)
 
