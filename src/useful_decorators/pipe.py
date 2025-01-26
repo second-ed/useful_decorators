@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from functools import wraps
 
+from .constants import ActionOnFail, PipeKey
 from .metaclasses import SingletonMeta
 from .validators import InvalidArgs
 
@@ -13,18 +14,22 @@ class Pipe(metaclass=SingletonMeta):
     stage_count = 0
 
     @classmethod
-    def stage(cls, arg_validations: dict = None):
+    def stage(
+        cls,
+        arg_validations: dict = None,
+        action_on_fail: str = ActionOnFail.BREAK.value,
+    ):
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 curr_stage = cls.stage_count
 
                 cls.log[curr_stage] = {
-                    "func": func.__name__,
-                    "args": args,
-                    "kwargs": kwargs,
-                    "exceptions": [],
-                    "start_time": str(datetime.now(timezone.utc)),
+                    PipeKey.FUNC.value: func.__name__,
+                    PipeKey.ARGS.value: args,
+                    PipeKey.KWARGS.value: kwargs,
+                    PipeKey.EXCEPTIONS.value: [],
+                    PipeKey.START_TIME.value: str(datetime.now(timezone.utc)),
                 }
 
                 if arg_validations:
@@ -36,30 +41,38 @@ class Pipe(metaclass=SingletonMeta):
 
                     if fails:
                         invalid_args = InvalidArgs(dict(fails))
-                        cls.log[curr_stage]["exceptions"].append(invalid_args)
+                        cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(
+                            invalid_args
+                        )
                         pprint.pprint(cls.log, sort_dicts=False)
                         raise invalid_args
 
                 try:
                     res = func(*args, **kwargs)
                 except Exception as e:
-                    cls.log[curr_stage]["exceptions"].append(e)
+                    cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(e)
 
-                cls.log[curr_stage]["end_time"] = str(datetime.now(timezone.utc))
-                cls.log[curr_stage]["return"] = res
+                cls.log[curr_stage][PipeKey.END_TIME.value] = str(
+                    datetime.now(timezone.utc)
+                )
+                cls.log[curr_stage][PipeKey.RETURN.value] = res
 
-                if arg_validations and arg_validations.get("return", []):
-                    fails = _validate_arg(arg_validations, "return", res)
+                if arg_validations and arg_validations.get(PipeKey.RETURN.value, []):
+                    fails = _validate_arg(arg_validations, PipeKey.RETURN.value, res)
 
                     if fails:
-                        invalid_args = InvalidArgs({"return": fails})
-                        cls.log[curr_stage]["exceptions"].append(invalid_args)
+                        invalid_args = InvalidArgs({PipeKey.RETURN.value: fails})
+                        cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(
+                            invalid_args
+                        )
                         pprint.pprint(cls.log, sort_dicts=False)
                         raise invalid_args
 
                 cls.stage_count += 1
 
-                return res, cls.log[curr_stage]["exceptions"]
+                if action_on_fail == ActionOnFail.CONTINUE.value:
+                    return res, []
+                return res, cls.log[curr_stage][PipeKey.EXCEPTIONS.value]
 
             return wrapper
 

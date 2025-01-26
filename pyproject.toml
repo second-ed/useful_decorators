@@ -29,8 +29,7 @@ dev = [
 branch = true
 source=["src"]
 omit=[
-    "*_logger.py",
-    "*config.py",
+    "constants.py",
 ]
 
 [tool.coverage.report]
