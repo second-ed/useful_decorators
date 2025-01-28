@@ -11,9 +11,7 @@ from .validators import InvalidArgs
 
 
 # more simple decoupled implementation than the full Pipe class
-def validate_args(
-    arg_validations: dict,
-):
+def validate_args(arg_validations: dict):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
