@@ -10,6 +10,39 @@ from .constants import ActionOnFail, PipeKey
 from .validators import InvalidArgs
 
 
+# more simple decoupled implementation than the full Pipe class
+def validate_args(
+    arg_validations: dict,
+):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if arg_validations:
+                fails = _validate_args(
+                    arg_validations,
+                    _create_arg_dict(inspect.getfullargspec(func), args, kwargs),
+                )
+
+                if fails:
+                    invalid_args = InvalidArgs(dict(fails))
+                    raise invalid_args
+
+            res = func(*args, **kwargs)
+
+            if arg_validations and arg_validations.get("return", []):
+                fails = _validate_arg(arg_validations, "return", res)
+
+                if fails:
+                    invalid_args = InvalidArgs({"return": fails})
+                    raise invalid_args
+
+            return res
+
+        return wrapper
+
+    return decorator
+
+
 class Pipe(metaclass=SingletonMeta):
     log = {}
     stage_count = 0
