@@ -1,16 +1,16 @@
-from enum import StrEnum, auto
+from enum import Enum
 
 
-class PipeKey(StrEnum):
-    FUNC = auto()
-    ARGS = auto()
-    KWARGS = auto()
-    RETURN = auto()
-    EXCEPTIONS = auto()
-    START_TIME = auto()
-    END_TIME = auto()
+class PipeKey(Enum):
+    FUNC = "func"
+    ARGS = "args"
+    KWARGS = "kwargs"
+    RETURN = "return"
+    EXCEPTIONS = "exceptions"
+    START_TIME = "start_time"
+    END_TIME = "end_time"
 
 
-class ActionOnFail(StrEnum):
-    CONTINUE = auto()
-    BREAK = auto()
+class ActionOnFail(Enum):
+    CONTINUE = "continue"
+    BREAK = "break"
