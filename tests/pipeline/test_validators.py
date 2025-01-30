@@ -1,9 +1,10 @@
 from contextlib import nullcontext as does_not_raise
-from types import NoneType
 
 import pytest
 
 from src.useful_decorators.pipeline import validators
+
+NoneType = type(None)
 
 
 @pytest.mark.parametrize(
