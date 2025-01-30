@@ -1,50 +1,13 @@
 import inspect
 import pprint
-from collections import defaultdict
 from datetime import datetime, timezone
 from functools import wraps
-from typing import Any, Callable, Dict, List
 
 from src.useful_decorators.metaclasses import SingletonMeta
 
 from .constants import ActionOnFail, PipeKey
+from .validate_dec import _create_arg_dict, _validate_arg, _validate_args
 from .validators import InvalidArgs
-
-
-# more simple decoupled implementation than the full Pipe class
-def validate_args(arg_validations: dict, arg_conversions: dict):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            arg_dict = _create_arg_dict(inspect.getfullargspec(func), args, kwargs)
-
-            if arg_conversions:
-                arg_dict = _convert_args(arg_conversions, arg_dict)
-
-            if arg_validations:
-                fails = _validate_args(
-                    arg_validations,
-                    arg_dict,
-                )
-
-                if fails:
-                    invalid_args = InvalidArgs(dict(fails))
-                    raise invalid_args
-
-            res = func(**arg_dict)
-
-            if arg_validations and arg_validations.get("return", []):
-                fails = _validate_arg(arg_validations, "return", res)
-
-                if fails:
-                    invalid_args = InvalidArgs({"return": fails})
-                    raise invalid_args
-
-            return res
-
-        return wrapper
-
-    return decorator
 
 
 class Pipe(metaclass=SingletonMeta):
@@ -128,45 +91,3 @@ class Pipe(metaclass=SingletonMeta):
                 print(cls.log)
                 raise errs[-1]
         return True
-
-
-def _convert_args(arg_conversions: Dict[str, List[Callable]], args_dict: dict):
-    for arg_name, arg_value in args_dict.items():
-        for conv in arg_conversions.get(arg_name, []):
-            arg_value = conv(arg_name, arg_value)
-        args_dict[arg_name] = arg_value
-    return args_dict
-
-
-def _validate_arg(
-    arg_validations: Dict[str, List[Callable]], arg_name: str, arg_value: Any
-):
-    fails = []
-    for validation in arg_validations.get(arg_name, []):
-        arg_validation = validation(arg_name, arg_value)
-        if arg_validation is not None:
-            fails.append(repr(arg_validation))
-    return fails
-
-
-def _validate_args(arg_validations: Dict[str, List[Callable]], args_dict: dict):
-    fails = defaultdict(list)
-    for arg_name, arg_value in args_dict.items():
-        arg_fails = _validate_arg(arg_validations, arg_name, arg_value)
-        if arg_fails:
-            fails[arg_name] = arg_fails
-    return fails
-
-
-def _create_arg_dict(arg_spec: inspect.FullArgSpec, args, kwargs):
-    args = {i: arg for i, arg in enumerate(args)}
-    arg_names = arg_spec.args
-    defaults = arg_spec.defaults or ()
-
-    num_non_defaults = len(arg_names) - len(defaults)
-    default_values = dict(zip(arg_names[num_non_defaults:], defaults))
-    arg_dict = {
-        arg: args.get(i) or default_values.get(arg)
-        for i, arg in enumerate(arg_names[: max(num_non_defaults, len(args))])
-    }
-    return {**arg_dict, **kwargs}
