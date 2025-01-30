@@ -51,6 +51,7 @@ class Pipe(metaclass=SingletonMeta):
                     # transform funcs return the transformed data for the next stage
                     # validation funcs return the data passed in + any validation errs
                     res, errs = func(*args, **kwargs)
+                    cls.log[curr_stage][PipeKey.RETURN.value] = res
                     if errs:
                         cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(*errs)
                 except Exception as e:
@@ -59,10 +60,13 @@ class Pipe(metaclass=SingletonMeta):
                 cls.log[curr_stage][PipeKey.END_TIME.value] = str(
                     datetime.now(timezone.utc)
                 )
-                cls.log[curr_stage][PipeKey.RETURN.value] = res
 
                 if arg_validations and arg_validations.get(PipeKey.RETURN.value, []):
-                    fails = _validate_arg(arg_validations, PipeKey.RETURN.value, res)
+                    fails = _validate_arg(
+                        arg_validations,
+                        PipeKey.RETURN.value,
+                        cls.log[curr_stage].get(PipeKey.RETURN.value),
+                    )
 
                     if fails:
                         invalid_args = InvalidArgs({PipeKey.RETURN.value: fails})
@@ -90,4 +94,4 @@ class Pipe(metaclass=SingletonMeta):
             if errs:
                 print(cls.log)
                 raise errs[-1]
-        return True
+        return data
