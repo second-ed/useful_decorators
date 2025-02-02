@@ -6,13 +6,13 @@ import pytest
 import src.useful_decorators.pipeline.converters as con
 import src.useful_decorators.pipeline.validators as val
 from src.useful_decorators.pipeline.validate_dec import (
-    _create_arg_dict,  # , _validate_arg, _validate_args,
+    _create_arg_dict,
     validate_args,
 )
 
 
 @pytest.mark.parametrize(
-    "arg_validations, arg_conversions, args, kwargs, expected_result, expected_context",
+    "validations, conversions, args, kwargs, expected_result, expected_context",
     [
         (
             {},
@@ -49,13 +49,13 @@ from src.useful_decorators.pipeline.validate_dec import (
     ],
 )
 def test_validate_args(
-    arg_validations, arg_conversions, args, kwargs, expected_result, expected_context
+    validations, conversions, args, kwargs, expected_result, expected_context
 ):
     with expected_context:
 
         @validate_args(
-            arg_validations=arg_validations,
-            arg_conversions=arg_conversions,
+            validations=validations,
+            conversions=conversions,
         )
         def some_func(a: int, b: float, c: bool, d: str):
             if c:

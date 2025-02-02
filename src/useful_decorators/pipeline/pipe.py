@@ -1,13 +1,9 @@
-import inspect
-import pprint
 from datetime import datetime, timezone
 from functools import wraps
 
 from src.useful_decorators.metaclasses import SingletonMeta
 
 from .constants import ActionOnFail, PipeKey
-from .validate_dec import _create_arg_dict, _validate_arg, _validate_args
-from .validators import InvalidArgs
 
 
 class Pipe(metaclass=SingletonMeta):
@@ -17,7 +13,6 @@ class Pipe(metaclass=SingletonMeta):
     @classmethod
     def stage(
         cls,
-        arg_validations: dict = None,
         action_on_fail: str = ActionOnFail.BREAK.value,
     ):
         def decorator(func):
@@ -33,54 +28,23 @@ class Pipe(metaclass=SingletonMeta):
                     PipeKey.START_TIME.value: str(datetime.now(timezone.utc)),
                 }
 
-                if arg_validations:
-                    fails = _validate_args(
-                        arg_validations,
-                        _create_arg_dict(inspect.getfullargspec(func), args, kwargs),
-                    )
-
-                    if fails:
-                        invalid_args = InvalidArgs(dict(fails))
-                        cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(
-                            invalid_args
-                        )
-                        pprint.pprint(cls.log, sort_dicts=False)
-                        raise invalid_args
-
                 try:
-                    # transform funcs return the transformed data for the next stage
-                    # validation funcs return the data passed in + any validation errs
-                    res, errs = func(*args, **kwargs)
+                    res = func(*args, **kwargs)
                     cls.log[curr_stage][PipeKey.RETURN.value] = res
-                    if errs:
-                        cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(*errs)
                 except Exception as e:
                     cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(e)
 
                 cls.log[curr_stage][PipeKey.END_TIME.value] = str(
                     datetime.now(timezone.utc)
                 )
-
-                if arg_validations and arg_validations.get(PipeKey.RETURN.value, []):
-                    fails = _validate_arg(
-                        arg_validations,
-                        PipeKey.RETURN.value,
-                        cls.log[curr_stage].get(PipeKey.RETURN.value),
-                    )
-
-                    if fails:
-                        invalid_args = InvalidArgs({PipeKey.RETURN.value: fails})
-                        cls.log[curr_stage][PipeKey.EXCEPTIONS.value].append(
-                            invalid_args
-                        )
-                        pprint.pprint(cls.log, sort_dicts=False)
-                        raise invalid_args
-
                 cls.stage_count += 1
 
-                if action_on_fail == ActionOnFail.CONTINUE.value:
-                    return res, []
-                return res, cls.log[curr_stage][PipeKey.EXCEPTIONS.value]
+                if (
+                    action_on_fail == ActionOnFail.CONTINUE.value
+                    or not cls.log[curr_stage][PipeKey.EXCEPTIONS.value]
+                ):
+                    return res
+                raise cls.log[curr_stage][PipeKey.EXCEPTIONS.value][-1]
 
             return wrapper
 
@@ -89,9 +53,6 @@ class Pipe(metaclass=SingletonMeta):
     @classmethod
     def run(cls, stages, data):
         for stage in stages:
-            data, errs = stage(data)
+            data = stage(data)
 
-            if errs:
-                print(cls.log)
-                raise errs[-1]
         return data
