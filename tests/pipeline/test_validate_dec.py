@@ -25,8 +25,8 @@ from src.useful_decorators.pipeline.validate_dec import (
         (
             {"a": [val.is_type(int)], "return": [val.is_type(str)]},
             {"a": [con.to_type(int)], "c": [con.to_type(bool)]},
-            (1.0, 2, 0, "test"),
-            {},
+            (1.0, 2, 0),
+            {"d": "test"},
             "-1_test",
             does_not_raise(),
         ),
