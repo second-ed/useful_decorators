@@ -7,7 +7,7 @@ from src.useful_decorators.decorators import ExceptionLogger, debug, print_test_
 
 @pytest.mark.parametrize(
     "args, custom_exception, catch_exceptions, msg, expected_result, expected_context",
-    [
+    (
         pytest.param(
             (2, "0"),
             ValueError,
@@ -39,7 +39,7 @@ from src.useful_decorators.decorators import ExceptionLogger, debug, print_test_
             does_not_raise(),
             id="Ensure catches and transforms exception",
         ),
-    ],
+    ),
 )
 def test_catch_raise(
     args, custom_exception, catch_exceptions, msg, expected_result, expected_context
@@ -60,7 +60,7 @@ def test_catch_raise(
 
 @pytest.mark.parametrize(
     "args, kwargs, expected_result",
-    [
+    (
         pytest.param(
             (2, 3),
             {},
@@ -73,7 +73,7 @@ def test_catch_raise(
             "{'func': 'some_func', 'args': (3,), 'kwargs': {'b': 4}, 'return': 7}\n",
             id="Ensure prints debug with args and kwargs",
         ),
-    ],
+    ),
 )
 def test_debug(capsys, args, kwargs, expected_result):
     @debug
@@ -87,7 +87,7 @@ def test_debug(capsys, args, kwargs, expected_result):
 
 @pytest.mark.parametrize(
     "kwargs, expected_result",
-    [
+    (
         pytest.param(
             {"a": 2, "b": 3},
             "pytest.param({'a': 2, 'b': 3}, 5, id=''),\n",
@@ -98,7 +98,7 @@ def test_debug(capsys, args, kwargs, expected_result):
             "pytest.param({'a': 3, 'b': 4}, 7, id=''),\n",
             id="Ensure prints test case with args and kwargs",
         ),
-    ],
+    ),
 )
 def test_print_test_case(capsys, kwargs, expected_result):
     @print_test_case

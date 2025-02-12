@@ -13,7 +13,7 @@ from src.useful_decorators.pipeline.validate_dec import (
 
 @pytest.mark.parametrize(
     "validations, conversions, args, kwargs, expected_result, expected_context",
-    [
+    (
         (
             {},
             {},
@@ -46,7 +46,7 @@ from src.useful_decorators.pipeline.validate_dec import (
             None,
             pytest.raises(val.InvalidArgs),
         ),
-    ],
+    ),
 )
 def test_validate_args(
     validations, conversions, args, kwargs, expected_result, expected_context
@@ -80,7 +80,7 @@ def get_mock_argspec():
 
 @pytest.mark.parametrize(
     "argspec_fixt_name, args, kwargs, expected_result, expected_context",
-    [
+    (
         (
             "get_mock_argspec",
             (1,),
@@ -95,7 +95,7 @@ def get_mock_argspec():
             {"a": 1, "b": 2, "c": 3, "d": True},
             does_not_raise(),
         ),
-    ],
+    ),
 )
 def test_create_arg_dict(
     request, argspec_fixt_name, args, kwargs, expected_result, expected_context

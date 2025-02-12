@@ -7,7 +7,7 @@ import src.useful_decorators.pipeline.converters as conv
 
 @pytest.mark.parametrize(
     "arg_type, arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             int,
             "a",
@@ -40,7 +40,7 @@ import src.useful_decorators.pipeline.converters as conv
             does_not_raise(),
             id="Ensure converts to list successfully",
         ),
-    ],
+    ),
 )
 def test_to_type(arg_type, arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -49,7 +49,7 @@ def test_to_type(arg_type, arg_name, arg_value, expected_result, expected_contex
 
 @pytest.mark.parametrize(
     "arg_type, arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             "default",
             "a",
@@ -66,7 +66,7 @@ def test_to_type(arg_type, arg_name, arg_value, expected_result, expected_contex
             does_not_raise(),
             id="Ensure retains initial value successfully",
         ),
-    ],
+    ),
 )
 def test_replace_none(arg_type, arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -75,7 +75,7 @@ def test_replace_none(arg_type, arg_name, arg_value, expected_result, expected_c
 
 @pytest.mark.parametrize(
     "arg_type, arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             0,
             "a",
@@ -100,7 +100,7 @@ def test_replace_none(arg_type, arg_name, arg_value, expected_result, expected_c
             does_not_raise(),
             id="Ensure returns initial value if given uncastable type",
         ),
-    ],
+    ),
 )
 def test_clip_min(arg_type, arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -109,7 +109,7 @@ def test_clip_min(arg_type, arg_name, arg_value, expected_result, expected_conte
 
 @pytest.mark.parametrize(
     "arg_type, arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             0,
             "a",
@@ -134,7 +134,7 @@ def test_clip_min(arg_type, arg_name, arg_value, expected_result, expected_conte
             does_not_raise(),
             id="Ensure returns initial value if given uncastable type",
         ),
-    ],
+    ),
 )
 def test_clip_max(arg_type, arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -143,7 +143,7 @@ def test_clip_max(arg_type, arg_name, arg_value, expected_result, expected_conte
 
 @pytest.mark.parametrize(
     "arg_type, arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             "  ",
             "a",
@@ -168,7 +168,7 @@ def test_clip_max(arg_type, arg_name, arg_value, expected_result, expected_conte
             does_not_raise(),
             id="Ensure casts to string and strips other character successfully",
         ),
-    ],
+    ),
 )
 def test_strip_chars(arg_type, arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -177,7 +177,7 @@ def test_strip_chars(arg_type, arg_name, arg_value, expected_result, expected_co
 
 @pytest.mark.parametrize(
     "arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             "a",
             "BLAH",
@@ -199,7 +199,7 @@ def test_strip_chars(arg_type, arg_name, arg_value, expected_result, expected_co
             does_not_raise(),
             id="Ensure casts to string and strips other character successfully",
         ),
-    ],
+    ),
 )
 def test_to_lower(arg_name, arg_value, expected_result, expected_context):
     with expected_context:
@@ -208,7 +208,7 @@ def test_to_lower(arg_name, arg_value, expected_result, expected_context):
 
 @pytest.mark.parametrize(
     "arg_name, arg_value, expected_result, expected_context",
-    [
+    (
         pytest.param(
             "a",
             "blah",
@@ -230,7 +230,7 @@ def test_to_lower(arg_name, arg_value, expected_result, expected_context):
             does_not_raise(),
             id="Ensure casts to string and strips other character successfully",
         ),
-    ],
+    ),
 )
 def test_to_upper(arg_name, arg_value, expected_result, expected_context):
     with expected_context:
