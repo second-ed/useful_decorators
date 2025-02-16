@@ -7,18 +7,18 @@ from .validators import InvalidArgs
 
 
 # more simple decoupled implementation than the full Pipe class
-def validate_args(arg_validations: dict, arg_conversions: dict):
+def validate_args(validations: dict = None, conversions: dict = None):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             arg_dict = _create_arg_dict(inspect.getfullargspec(func), args, kwargs)
 
-            if arg_conversions:
-                arg_dict = _convert_args(arg_conversions, arg_dict)
+            if conversions:
+                arg_dict = _convert_args(conversions, arg_dict)
 
-            if arg_validations:
+            if validations:
                 fails = _validate_args(
-                    arg_validations,
+                    validations,
                     arg_dict,
                 )
 
@@ -28,8 +28,8 @@ def validate_args(arg_validations: dict, arg_conversions: dict):
 
             res = func(**arg_dict)
 
-            if arg_validations and arg_validations.get("return", []):
-                fails = _validate_arg(arg_validations, "return", res)
+            if validations and validations.get("return", ()):
+                fails = _validate_arg(validations, "return", res)
 
                 if fails:
                     invalid_args = InvalidArgs({"return": fails})
@@ -42,29 +42,29 @@ def validate_args(arg_validations: dict, arg_conversions: dict):
     return decorator
 
 
-def _convert_args(arg_conversions: Dict[str, List[Callable]], args_dict: dict):
+def _convert_args(conversions: Dict[str, List[Callable]], args_dict: dict):
     for arg_name, arg_value in args_dict.items():
-        for conv in arg_conversions.get(arg_name, []):
+        for conv in conversions.get(arg_name, ()):
             arg_value = conv(arg_name, arg_value)
         args_dict[arg_name] = arg_value
     return args_dict
 
 
 def _validate_arg(
-    arg_validations: Dict[str, List[Callable]], arg_name: str, arg_value: Any
+    validations: Dict[str, List[Callable]], arg_name: str, arg_value: Any
 ):
     fails = []
-    for validation in arg_validations.get(arg_name, []):
+    for validation in validations.get(arg_name, ()):
         arg_validation = validation(arg_name, arg_value)
         if arg_validation is not None:
             fails.append(repr(arg_validation))
     return fails
 
 
-def _validate_args(arg_validations: Dict[str, List[Callable]], args_dict: dict):
+def _validate_args(validations: Dict[str, List[Callable]], args_dict: dict):
     fails = defaultdict(list)
     for arg_name, arg_value in args_dict.items():
-        arg_fails = _validate_arg(arg_validations, arg_name, arg_value)
+        arg_fails = _validate_arg(validations, arg_name, arg_value)
         if arg_fails:
             fails[arg_name] = arg_fails
     return fails

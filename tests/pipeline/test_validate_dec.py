@@ -6,14 +6,14 @@ import pytest
 import src.useful_decorators.pipeline.converters as con
 import src.useful_decorators.pipeline.validators as val
 from src.useful_decorators.pipeline.validate_dec import (
-    _create_arg_dict,  # , _validate_arg, _validate_args,
+    _create_arg_dict,
     validate_args,
 )
 
 
 @pytest.mark.parametrize(
-    "arg_validations, arg_conversions, args, kwargs, expected_result, expected_context",
-    [
+    "validations, conversions, args, kwargs, expected_result, expected_context",
+    (
         (
             {},
             {},
@@ -25,8 +25,8 @@ from src.useful_decorators.pipeline.validate_dec import (
         (
             {"a": [val.is_type(int)], "return": [val.is_type(str)]},
             {"a": [con.to_type(int)], "c": [con.to_type(bool)]},
-            (1.0, 2, 0, "test"),
-            {},
+            (1.0, 2, 0),
+            {"d": "test"},
             "-1_test",
             does_not_raise(),
         ),
@@ -46,16 +46,16 @@ from src.useful_decorators.pipeline.validate_dec import (
             None,
             pytest.raises(val.InvalidArgs),
         ),
-    ],
+    ),
 )
 def test_validate_args(
-    arg_validations, arg_conversions, args, kwargs, expected_result, expected_context
+    validations, conversions, args, kwargs, expected_result, expected_context
 ):
     with expected_context:
 
         @validate_args(
-            arg_validations=arg_validations,
-            arg_conversions=arg_conversions,
+            validations=validations,
+            conversions=conversions,
         )
         def some_func(a: int, b: float, c: bool, d: str):
             if c:
@@ -80,7 +80,7 @@ def get_mock_argspec():
 
 @pytest.mark.parametrize(
     "argspec_fixt_name, args, kwargs, expected_result, expected_context",
-    [
+    (
         (
             "get_mock_argspec",
             (1,),
@@ -95,7 +95,7 @@ def get_mock_argspec():
             {"a": 1, "b": 2, "c": 3, "d": True},
             does_not_raise(),
         ),
-    ],
+    ),
 )
 def test_create_arg_dict(
     request, argspec_fixt_name, args, kwargs, expected_result, expected_context
