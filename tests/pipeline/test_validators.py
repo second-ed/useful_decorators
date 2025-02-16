@@ -385,7 +385,7 @@ def test_re_search(pattern, arg_name, arg_value, expected_result, expected_conte
     "valid_values, arg_name, arg_value, expected_result, expected_context",
     (
         pytest.param(
-            [0, 1, 2],
+            (0, 1, 2),
             "a",
             1,
             NoneType,
@@ -393,7 +393,7 @@ def test_re_search(pattern, arg_name, arg_value, expected_result, expected_conte
             id="Ensure returns None when `arg_value` is valid",
         ),
         pytest.param(
-            [0, 1, 2],
+            (0, 1, 2),
             "a",
             3,
             ValueError,
@@ -412,17 +412,17 @@ def test_is_in(valid_values, arg_name, arg_value, expected_result, expected_cont
     "required_values, arg_name, arg_value, expected_result, expected_context",
     (
         pytest.param(
-            [2],
+            (2,),
             "a",
-            [1, 2, 3],
+            (1, 2, 3),
             NoneType,
             does_not_raise(),
             id="Ensure returns None when `arg_value` is valid",
         ),
         pytest.param(
-            [4],
+            (4,),
             "a",
-            [1, 2, 3],
+            (1, 2, 3),
             ValueError,
             does_not_raise(),
             id="Ensure returns ValueError when `arg_value` is invalid",
