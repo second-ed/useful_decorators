@@ -95,8 +95,8 @@ def test_replace_none(arg_type, arg_name, arg_value, expected_result, expected_c
         pytest.param(
             0,
             "a",
-            (-1),
-            (-1),
+            (-1,),
+            (-1,),
             does_not_raise(),
             id="Ensure returns initial value if given uncastable type",
         ),

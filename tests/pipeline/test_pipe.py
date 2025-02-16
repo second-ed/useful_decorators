@@ -24,4 +24,4 @@ def test_pipe():
     def larger_item(numbers):
         return max(*numbers)
 
-    assert Pipe.run([get_primes, sum_indexes, larger_item], range(100)) == 556
+    assert Pipe.run((get_primes, sum_indexes, larger_item), range(100)) == 556
