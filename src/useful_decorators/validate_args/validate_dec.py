@@ -92,14 +92,14 @@ def _validate_args(
 
 
 def _create_arg_dict(arg_spec: inspect.FullArgSpec, args: tuple, kwargs: dict) -> dict:
-    args_idx = {i: arg for i, arg in enumerate(args)}
+    args_map = {i: arg for i, arg in enumerate(args)}
     arg_names = arg_spec.args
     defaults = arg_spec.defaults or ()
 
     num_non_defaults = len(arg_names) - len(defaults)
     default_values = dict(zip(arg_names[num_non_defaults:], defaults))
     arg_dict = {
-        arg: args_idx.get(i) or default_values.get(arg)
-        for i, arg in enumerate(arg_names[: max(num_non_defaults, len(args_idx))])
+        arg: args_map.get(i) or default_values.get(arg)
+        for i, arg in enumerate(arg_names[: max(num_non_defaults, len(args_map))])
     }
     return {**default_values, **arg_dict, **kwargs}
