@@ -37,6 +37,7 @@ dev = [
 pretty = true
 disallow_untyped_defs = true
 check_untyped_defs = true
+exclude = ["scripts", "docs", "tests"]
 
 [[tool.mypy.overrides]]
 module = ["useful_decorators.*"]

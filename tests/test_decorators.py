@@ -2,7 +2,7 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 
-from src.useful_decorators.decorators import ExceptionLogger, debug, print_test_case
+from useful_decorators.decorators import ExceptionLogger, debug, print_test_case
 
 
 @pytest.mark.parametrize(

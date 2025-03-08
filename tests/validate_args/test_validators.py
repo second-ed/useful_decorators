@@ -2,7 +2,7 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 
-from src.useful_decorators.validate_args import validators
+from useful_decorators.validate_args import validators
 
 NoneType = type(None)
 

@@ -2,7 +2,7 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 
-import src.useful_decorators.validate_args.converters as conv
+import useful_decorators.validate_args.converters as conv
 
 
 @pytest.mark.parametrize(
