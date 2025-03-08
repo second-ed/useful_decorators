@@ -8,11 +8,18 @@ repos:
     hooks:
       # linter.
     - id: ruff
+      entry: ruff check
       args: [ --fix]
       # formatter.
     - id: ruff-format
   - repo: local
     hooks:
+      # - id: mypy
+      #   name: mypy
+      #   entry: uv run mypy
+      #   language: python
+      #   pass_filenames: false
+      #   args: [--explicit-package-bases, --namespace-packages, src]
       - id: pytest
         name: pytest
         entry: uv run pytest -v --cov=src --cov-report term-missing

@@ -4,9 +4,9 @@ from contextlib import nullcontext as does_not_raise
 import pytest
 from returns.result import Failure, Result, Success
 
-import src.useful_decorators.validate_args.converters as con
-import src.useful_decorators.validate_args.validators as val
-from src.useful_decorators.validate_args.validate_dec import (
+import useful_decorators.validate_args.converters as con
+import useful_decorators.validate_args.validators as val
+from useful_decorators.validate_args.validate_dec import (
     _create_arg_dict,
     validate_args,
 )
