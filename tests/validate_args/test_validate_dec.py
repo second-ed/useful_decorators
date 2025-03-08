@@ -2,6 +2,7 @@ import inspect
 from contextlib import nullcontext as does_not_raise
 
 import pytest
+from returns.result import Failure, Result, Success
 
 import src.useful_decorators.validate_args.converters as con
 import src.useful_decorators.validate_args.validators as val
@@ -63,6 +64,68 @@ def test_validate_args(
             return f"{a - b}_{d}"
 
         assert some_func(*args, **kwargs) == expected_result
+
+
+@pytest.mark.parametrize(
+    "validations, conversions, args, kwargs, expected_result, expected_context",
+    (
+        (
+            {},
+            {},
+            (1, 2),
+            {},
+            Success(0.5),
+            does_not_raise(),
+        ),
+        (
+            {"a": [val.is_type(int)]},
+            {"b": [con.to_type(float)]},
+            ("1", 2),
+            {},
+            '{\n    "a": [\n        "TypeError(\\"`a` must be type <class \'int\'>. Got: <class \'str\'>\\")"\n    ]\n}',
+            does_not_raise(),
+        ),
+        (
+            {"a": [val.is_type(int)]},
+            {},
+            (1,),
+            {"b": 0},
+            "division by zero",
+            does_not_raise(),
+        ),
+        (
+            {"a": [val.is_type(int)], "return": [val.gt(100)]},
+            {},
+            (1,),
+            {"b": 1},
+            "[\n    \"ValueError('`return` must be greater than 100. Got: 1.0.')\"\n]",
+            does_not_raise(),
+        ),
+    ),
+)
+def test_validate_args_returns(
+    validations, conversions, args, kwargs, expected_result, expected_context
+):
+    with expected_context:
+
+        @validate_args(
+            validations=validations,
+            conversions=conversions,
+            use_returns=True,
+        )
+        def divide(a: float, b: float) -> Result[float, Exception]:
+            try:
+                return Success(a / b)
+            except Exception as e:
+                return Failure(e)
+
+        result = divide(*args, **kwargs)
+        match result:
+            case Success(_):
+                assert result == expected_result
+
+            case Failure(_):
+                assert str(result.failure()) == expected_result
 
 
 @pytest.fixture

@@ -3,11 +3,15 @@ from collections import defaultdict
 from functools import wraps
 from typing import Any, Callable, Dict, List
 
+from returns.result import Failure, Success
+
 from .validators import InvalidArgs
 
 
 # more simple decoupled implementation than the full Pipe class
-def validate_args(validations: dict = None, conversions: dict = None):
+def validate_args(
+    validations: dict = None, conversions: dict = None, use_returns: bool = False
+):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -17,23 +21,36 @@ def validate_args(validations: dict = None, conversions: dict = None):
                 arg_dict = _convert_args(conversions, arg_dict)
 
             if validations:
-                fails = _validate_args(
-                    validations,
-                    arg_dict,
+                fails = dict(
+                    _validate_args(
+                        validations,
+                        arg_dict,
+                    )
                 )
-
                 if fails:
-                    invalid_args = InvalidArgs(dict(fails))
-                    raise invalid_args
+                    match use_returns:
+                        case True:
+                            return Failure(InvalidArgs(fails))
+
+                        case False:
+                            raise InvalidArgs(fails)
 
             res = func(**arg_dict)
 
             if validations and validations.get("return", ()):
-                fails = _validate_arg(validations, "return", res)
+                match use_returns, res:
+                    case True, Success(inner):
+                        fails = _validate_arg(validations, "return", inner)
+                        if fails:
+                            return Failure(InvalidArgs(fails))
 
-                if fails:
-                    invalid_args = InvalidArgs({"return": fails})
-                    raise invalid_args
+                    case True, Failure(_):
+                        return res
+
+                    case False, _:
+                        fails = _validate_arg(validations, "return", res)
+                        if fails:
+                            raise InvalidArgs(fails)
 
             return res
 
