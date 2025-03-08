@@ -42,7 +42,7 @@ def validate_args(
                     case True, Success(inner):
                         fails = _validate_arg(validations, "return", inner)
                         if fails:
-                            return Failure(InvalidArgs({"return": fails}))
+                            return Failure(InvalidArgs(fails))
 
                     case True, Failure(_):
                         return res
@@ -50,7 +50,7 @@ def validate_args(
                     case False, _:
                         fails = _validate_arg(validations, "return", res)
                         if fails:
-                            raise InvalidArgs({"return": fails})
+                            raise InvalidArgs(fails)
 
             return res
 
