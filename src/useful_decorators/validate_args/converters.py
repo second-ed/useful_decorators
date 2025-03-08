@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Callable
 
 
-def to_type(dst_type: type):
-    def wrapper(arg_name: str, arg_value: Any):
+def to_type(dst_type: type) -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> Callable:
         try:
             return dst_type(arg_value)
         except TypeError as e:
@@ -14,15 +14,15 @@ def to_type(dst_type: type):
     return wrapper
 
 
-def replace_none(default_value: Any):
-    def wrapper(arg_name: str, arg_value: Any):
+def replace_none(default_value: Any) -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> Callable:
         return arg_value if arg_value is not None else default_value
 
     return wrapper
 
 
-def clip_min(min_value: float):
-    def wrapper(arg_name: str, arg_value: Any):
+def clip_min(min_value: float) -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> float | str:
         try:
             return max(min_value, float(arg_value))
         except TypeError as e:
@@ -34,8 +34,8 @@ def clip_min(min_value: float):
     return wrapper
 
 
-def clip_max(max_value: float):
-    def wrapper(arg_name: str, arg_value: Any):
+def clip_max(max_value: float) -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> float | str:
         try:
             return min(max_value, float(arg_value))
         except TypeError as e:
@@ -47,8 +47,8 @@ def clip_max(max_value: float):
     return wrapper
 
 
-def strip_chars(chars: str):
-    def wrapper(arg_name: str, arg_value: Any):
+def strip_chars(chars: str) -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> str:
         try:
             return str(arg_value).strip(chars)
         except TypeError as e:
@@ -60,8 +60,8 @@ def strip_chars(chars: str):
     return wrapper
 
 
-def to_lower():
-    def wrapper(arg_name: str, arg_value: Any):
+def to_lower() -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> str:
         try:
             return str(arg_value).lower()
         except TypeError as e:
@@ -73,8 +73,8 @@ def to_lower():
     return wrapper
 
 
-def to_upper():
-    def wrapper(arg_name: str, arg_value: Any):
+def to_upper() -> Callable:
+    def wrapper(arg_name: str, arg_value: Any) -> str:
         try:
             return str(arg_value).upper()
         except TypeError as e:

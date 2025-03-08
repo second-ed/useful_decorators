@@ -6,35 +6,35 @@ import pstats
 import threading
 from functools import wraps
 from io import StringIO
-from typing import Callable, Tuple, Union
+from typing import Any, Callable
 
-from .metaclasses import SingletonMeta
+from useful_decorators.metaclasses import SingletonMeta  # type ignore[import-untyped]
 
 
 class ExceptionLogger(metaclass=SingletonMeta):
     _log_lock = threading.Lock()
-    log = []
+    log: list[Exception] = []
 
     @classmethod
     def catch_raise(
         cls,
-        custom_exception: Exception = Exception,
-        catch_exceptions: Union[Exception, Tuple[Exception]] = Exception,
+        custom_exception: Exception = Exception,  # type: ignore[assignment]
+        catch_exceptions: Exception | tuple[Exception] = Exception,  # type: ignore[assignment]
         msg: str = "",
     ) -> Callable:
-        def decorator(func: Callable):
+        def decorator(func: Callable) -> Callable:
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, **kwargs) -> Any:  # type: ignore[no-untyped-def]
                 try:
                     res = func(*args, **kwargs)
                     return res, None
-                except catch_exceptions as e:
+                except catch_exceptions as e:  # type: ignore[misc]
                     raise_exception = (
                         custom_exception
                         if custom_exception is not Exception
                         else type(e)
                     )
-                    exc = raise_exception(
+                    exc = raise_exception(  # type: ignore[operator]
                         {
                             "func": func.__name__,
                             "args": args,
@@ -52,9 +52,9 @@ class ExceptionLogger(metaclass=SingletonMeta):
         return decorator
 
 
-def debug(func):
+def debug(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:  # type: ignore[no-untyped-def]
         res = func(*args, **kwargs)
         print({"func": func.__name__, "args": args, "kwargs": kwargs, "return": res})
         return res
@@ -62,9 +62,9 @@ def debug(func):
     return wrapper
 
 
-def print_test_case(func):
+def print_test_case(func: Callable) -> Callable:
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:  # type: ignore[no-untyped-def]
         params = dict(zip(list(inspect.signature(func).parameters.keys()), args))
         params.update(**kwargs)
         res = func(*args, **kwargs)
@@ -74,13 +74,13 @@ def print_test_case(func):
     return wrapper
 
 
-def profile_func(sort_by="cumulative"):
-    def decorator(func):
+def profile_func(sort_by: str = "cumulative") -> Callable:
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:  # type: ignore[no-untyped-def]
             profiler = cProfile.Profile()
             profiler.enable()
-            result = func(*args, **kwargs)
+            res = func(*args, **kwargs)
             profiler.disable()
 
             s = StringIO()
@@ -88,7 +88,7 @@ def profile_func(sort_by="cumulative"):
             ps.strip_dirs().sort_stats(sort_by).print_stats()
             print(s.getvalue())
 
-            return result
+            return res
 
         return wrapper
 

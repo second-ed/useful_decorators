@@ -1,23 +1,28 @@
 from datetime import datetime, timezone
 from functools import wraps
+from typing import Any, Callable, Iterable, Type, TypeVar
 
-from src.useful_decorators.metaclasses import SingletonMeta
+from useful_decorators.constants import (
+    ActionOnFail,
+    PipeKey,
+)  # type ignore[import-untyped]
+from useful_decorators.metaclasses import SingletonMeta  # type ignore[import-untyped]
 
-from .constants import ActionOnFail, PipeKey
+T = TypeVar("T")
 
 
 class Pipe(metaclass=SingletonMeta):
-    log = {}
+    log: dict = {}
     stage_count = 0
 
     @classmethod
     def stage(
         cls,
         action_on_fail: str = ActionOnFail.BREAK.value,
-    ):
-        def decorator(func):
+    ) -> Callable:
+        def decorator(func: Callable) -> Callable:
             @wraps(func)
-            def wrapper(*args, **kwargs):
+            def wrapper(*args, **kwargs) -> Any:  # type: ignore[no-untyped-def]
                 curr_stage = cls.stage_count
 
                 cls.log[curr_stage] = {
@@ -51,7 +56,7 @@ class Pipe(metaclass=SingletonMeta):
         return decorator
 
     @classmethod
-    def run(cls, stages, data):
+    def run(cls, stages: Iterable[Callable], data: Type[T]) -> Type[T]:
         for stage in stages:
             data = stage(data)
 

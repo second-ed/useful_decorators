@@ -1,6 +1,6 @@
 import math
 
-from src.useful_decorators.pipeline.pipe import Pipe
+from src.useful_decorators.pipe import Pipe
 
 
 def test_pipe():
