@@ -34,11 +34,10 @@ dev = [
 ]
 
 [tool.mypy]
-pretty = true
-disallow_untyped_defs = true
-check_untyped_defs = true
-exclude = ["scripts", "docs", "tests"]
-
-[[tool.mypy.overrides]]
-module = ["useful_decorators.*"]
-follow_untyped_imports = true
+explicit_package_bases = true
+mypy_path = "src"
+# pretty = true
+# disallow_untyped_defs = true
+# check_untyped_defs = true
+files = ["src/**/*.py", "tests/**/*.py"]
+exclude = ["docs/", ".github/", "configs/", "**/*.toml", "**/*.yaml"]
