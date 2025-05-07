@@ -44,6 +44,16 @@ def eq(value: int) -> Callable:
     return wrapper
 
 
+def ne(value: int) -> Callable:
+    @catch_type_error
+    def wrapper(arg_name: str, arg_value: Any) -> ValueError | None:
+        if not arg_value != value:
+            return ValueError(f"`{arg_name}` must not equal {value}. Got: {arg_value}.")
+        return None
+
+    return wrapper
+
+
 def gt(limit: int) -> Callable:
     @catch_type_error
     def wrapper(arg_name: str, arg_value: Any) -> ValueError | None:

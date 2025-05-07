@@ -75,6 +75,33 @@ def test_eq(limit, arg_name, arg_value, expected_result, expected_context):
         pytest.param(
             1,
             "a",
+            0,
+            NoneType,
+            does_not_raise(),
+            id="Ensure returns None when `arg_value` is correct",
+        ),
+        pytest.param(
+            1,
+            "a",
+            1,
+            ValueError,
+            does_not_raise(),
+            id="Ensure returns ValueError when `arg_value` is incorrect",
+        ),
+    ),
+)
+def test_ne(limit, arg_name, arg_value, expected_result, expected_context):
+    with expected_context:
+        res = validators.ne(limit)(arg_name, arg_value)
+        assert isinstance(res, expected_result)
+
+
+@pytest.mark.parametrize(
+    "limit, arg_name, arg_value, expected_result, expected_context",
+    (
+        pytest.param(
+            1,
+            "a",
             2,
             NoneType,
             does_not_raise(),
