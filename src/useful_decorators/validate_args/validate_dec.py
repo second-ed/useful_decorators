@@ -99,7 +99,7 @@ def _create_arg_dict(arg_spec: inspect.FullArgSpec, args: tuple, kwargs: dict) -
     num_non_defaults = len(arg_names) - len(defaults)
     default_values = dict(zip(arg_names[num_non_defaults:], defaults))
     arg_dict = {
-        arg: args_map.get(i) or default_values.get(arg)
+        arg: args_map.get(i, default_values.get(arg))
         for i, arg in enumerate(arg_names[: max(num_non_defaults, len(args_map))])
     }
     return {**default_values, **arg_dict, **kwargs}
